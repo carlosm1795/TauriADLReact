@@ -4,7 +4,8 @@ mod repository;
 mod models;
 
 use repository::mongodb_repo::MongoRepo;
-use models::user_model::User;
+use repository::MongoTest::MongoTesting;
+use models::user_model::{User,LatestName, Ceremonias};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -14,7 +15,7 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet,get_information])
+        .invoke_handler(tauri::generate_handler![greet,get_information,get_information_names,get_Ceremonias])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -44,4 +45,34 @@ async fn get_information() -> Vec<User> {
     }
 
     return resultado;
+}
+
+#[tauri::command]
+async fn get_Ceremonias() -> Vec<Ceremonias> {
+    let db = MongoRepo::init();
+    let ceres = db.get_all_cer();
+    let mut resultado: Vec<Ceremonias> = Vec::new();
+    match ceres {
+        Ok(value) =>{
+            for item in value.iter() {
+                let aux = Ceremonias{
+                    _id: item._id,
+                    Comentarios: item.Comentarios.to_owned(),
+                    NombreCeremonia: item.NombreCeremonia.to_owned()
+                };
+                resultado.push(aux);
+            }
+        }
+        Err(e) => println!("error parsing header: {e:?}"),
+    }
+    return resultado;
+}
+
+#[tauri::command]
+async fn get_information_names()-> Vec<LatestName>{
+    println!("Ejecutandomoe desde get infomrmation");
+    let db = MongoTesting::get_all_users().await;    
+    return db;
+    // let db2 = MongoRepo::init();
+    // let data = db2.get_all_name().await;
 }
