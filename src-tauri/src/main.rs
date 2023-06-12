@@ -5,7 +5,7 @@ mod models;
 
 use repository::mongodb_repo::MongoRepo;
 use repository::MongoTest::MongoTesting;
-use models::user_model::{User,LatestName, Ceremonias};
+use models::user_model::{User,LatestName, Ceremonias, Velas, Santuarios};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -15,7 +15,7 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet,get_information,get_information_names,get_Ceremonias])
+        .invoke_handler(tauri::generate_handler![greet,get_information,get_information_names,get_Ceremonias,get_velas,get_santuarios])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -62,6 +62,49 @@ async fn get_Ceremonias() -> Vec<Ceremonias> {
                 };
                 resultado.push(aux);
             }
+        }
+        Err(e) => println!("error parsing header: {e:?}"),
+    }
+    return resultado;
+}
+
+#[tauri::command]
+async fn get_velas() -> Vec<Velas> {
+    let db = MongoRepo::init();
+    let ceres = db.get_all_velas();
+    let mut resultado: Vec<Velas> = Vec::new();
+    match ceres {
+        Ok(value) =>{
+            for item in value.iter() {
+                let aux = Velas{
+                    id: item.id.to_owned(),
+                    Nombre: item.Nombre.to_owned(),
+                  
+                };
+                resultado.push(aux);
+            }
+        }
+        Err(e) => println!("error parsing header: {e:?}"),
+    }
+    return resultado;
+}
+
+#[tauri::command]
+async fn get_santuarios() -> Vec<Santuarios> {
+    let db = MongoRepo::init();
+    let ceres = db.get_all_santuarios();
+    let mut resultado: Vec<Santuarios> = Vec::new();
+    match ceres {
+        Ok(value) =>{
+            for item in value.iter() {
+                let aux = Santuarios { 
+                    id: item.id, 
+                    Nombre: item.Nombre.to_owned(), 
+                    Comentarios: 
+                    item.Comentarios.to_owned() 
+                };  
+                resultado.push(aux);
+            };
         }
         Err(e) => println!("error parsing header: {e:?}"),
     }

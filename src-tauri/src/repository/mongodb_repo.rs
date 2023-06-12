@@ -4,13 +4,15 @@ use mongodb::{
     sync::{ Client, Collection },
     options::{FindOptions}
 };
-use crate::models::user_model::{ User, LatestName, Personas, Ceremonias };
+use crate::models::user_model::{ User, LatestName, Personas, Ceremonias, Velas, Santuarios };
 use rocket::tokio::stream;
 
 pub struct MongoRepo {
     col: Collection<User>,
     per: Collection<Personas>,
     cer: Collection<Ceremonias>,
+    velas: Collection<Velas>,
+    santuarios: Collection<Santuarios>,
 }
 
 impl MongoRepo {
@@ -31,7 +33,10 @@ impl MongoRepo {
         let col: Collection<User> = db.collection("User");
         let per: Collection<Personas> = db.collection("Personas");
         let cer: Collection<Ceremonias> = db.collection("Ceremonias");
-        MongoRepo { col, per,cer }
+        let velas: Collection<Velas> = db.collection("Velas");
+        let santuarios: Collection<Santuarios> = db.collection("Santuarios");
+        
+        MongoRepo { col, per,cer,velas,santuarios }
     }
 
     pub fn create_user(&self, new_user: User) -> Result<InsertOneResult, Error> {
@@ -83,6 +88,20 @@ impl MongoRepo {
 
         Ok(user_detail)
     }
+
+    pub fn get_all_velas(&self) -> Result<Vec<Velas>, Error> {
+        let cursors = self.velas.find(None, None).ok().expect("Error getting list of users");
+        let velas = cursors.map(|doc| doc.unwrap()).collect();
+
+        Ok(velas)
+    } 
+
+    pub fn get_all_santuarios(&self) -> Result<Vec<Santuarios>, Error> {
+        let cursors = self.santuarios.find(None, None).ok().expect("Error getting list of users");
+        let santuarios = cursors.map(|doc| doc.unwrap()).collect();
+
+        Ok(santuarios)
+    } 
 
     pub fn get_all_users(&self) -> Result<Vec<User>, Error> {
         let cursors = self.col.find(None, None).ok().expect("Error getting list of users");

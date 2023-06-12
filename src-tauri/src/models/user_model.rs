@@ -47,3 +47,18 @@ pub struct Ceremonias {
     pub NombreCeremonia:String,
     pub Comentarios:String
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Velas {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    pub id:Option<String>,
+    pub Nombre:String
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Santuarios {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    pub id:Option<u32>,
+    pub Nombre:String,
+    pub Comentarios:String
+}
